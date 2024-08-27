@@ -18,5 +18,7 @@ jobs:
         with:
           test-script: npx jest --ci --json --coverage --testLocationInResults --outputFile=report.json
           package-manager: npm
+          coverage-file: report.json
+          base-coverage-file: report.json
 
         # npx jest --ci --json --coverage --testLocationInResults --outputFile=report.json
