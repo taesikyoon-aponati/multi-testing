@@ -1,24 +1,37 @@
-name: 'coverage'
+name: test-cov
+
 on:
   push:
     branches:
-      - master
       - main
-
 jobs:
-  coverage:
+  Dev-Testing:
+    runs-on: ubuntu-20.04
     permissions:
-      contents: write
+      contents: read
+      actions: read
       checks: write
-      pull-requests: write
-    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: ArtiomTr/jest-coverage-report-action@v2
-        with:
-          test-script: npx jest --ci --json --coverage --testLocationInResults --outputFile=report.json
-          package-manager: npm
-          coverage-file: ./coverage/report.json
-          base-coverage-file: ./coverage/master/report.json
+      - name: checkout
+        uses: actions/checkout@v4
 
-        # npx jest --ci --json --coverage --testLocationInResults --outputFile=report.json
+      - name: setup node
+        uses: actions/setup-node@v4.0.0
+        with:
+          node-version: 20.x
+
+      - name: install dependencies
+        run: npm i
+      - name: Run Unit Test
+        run: npm run test:report
+
+      - name: Test Report
+        id: test-report
+        uses: dorny/test-reporter@v1.7.0
+        if: success() || failure()
+        with:
+          name: test-results
+          path: junit.xml
+          fail-on-error: 'false'
+          reporter: jest-junit
+          token: ${{ secrets.GITHUB_TOKEN }}
