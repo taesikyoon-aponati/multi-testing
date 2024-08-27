@@ -17,9 +17,7 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:report": "jest --ci --reporters=default --reporters=jest-junit --outputFile=junit.xml --testLocationInResults",
-    "test:app": "jest --ci --reporters=default --reporters=jest-junit --outputFile=junit-app.xml --testNamePattern='app' --testLocationInResults",
-    "test:user": "jest --ci --reporters=default --reporters=jest-junit --outputFile=junit-user.xml --testNamePattern='user' --testLocationInResults",
+    "test:report": "jest --ci --reporters=default --reporters=jest-junit",
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {

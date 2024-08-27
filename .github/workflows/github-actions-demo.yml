@@ -4,19 +4,13 @@ on:
   push:
     branches:
       - main
-
 jobs:
-  Dev-Testing:
+  Testing-Report:
     runs-on: ubuntu-20.04
-    strategy:
-      matrix:
-        test-suite: [app, user] # 병렬로 실행할 테스트 스크립트
-
     permissions:
       contents: read
       actions: read
       checks: write
-
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -27,31 +21,9 @@ jobs:
           node-version: 20.x
 
       - name: install dependencies
-        run: npm ci
-
-      - name: Run Unit Test for ${{ matrix.test-suite }}
-        run: npm run test:${{ matrix.test-suite }}
-
-      - name: Store test results
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ matrix.test-suite }}-result
-          path: junit-${{ matrix.test-suite }}.xml
-
-  Combine-Reports:
-    needs: Dev-Testing
-    runs-on: ubuntu-20.04
-
-    steps:
-      - name: Download test results
-        uses: actions/download-artifact@v3
-        with:
-          path: ./results
-
-      - name: Combine test results
-        run: |
-          # Combine the junit files into one report
-          npx jest-junit-merge ./results/**/*.xml -o combined-junit.xml
+        run: npm i
+      - name: Run Unit Test
+        run: npm run test:report
 
       - name: Test Report
         id: test-report
@@ -59,7 +31,7 @@ jobs:
         if: success() || failure()
         with:
           name: test-results
-          path: combined-junit.xml
+          path: junit.xml
           fail-on-error: 'false'
           reporter: jest-junit
           token: ${{ secrets.GITHUB_TOKEN }}
