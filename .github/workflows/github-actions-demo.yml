@@ -1,6 +1,7 @@
 name: test-cov
 
 on:
+  # main 브랜치로 push되거나, pull request가 발생했을 때 실행
   push:
     branches:
       - main
@@ -17,9 +18,13 @@ jobs:
       checks: write
 
     steps:
+      # 1. 저장소의 코드를 체크아웃
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 2. Node.js 의존성 캐시
+      # 이전에 설치한 Node.js 모듈을 캐싱하여 종속성 설치 시간을 줄임
+      # package-lock.json 파일이 변경되지 않으면 캐시를 사용함
       - name: Cache Node.js modules
         uses: actions/cache@v3
         with:
@@ -28,24 +33,34 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
+      # 3. Node.js 환경 설정
+      # 지정된 Node.js 버전 (20.x)을 설정함
       - name: Setup Node.js
         uses: actions/setup-node@v4.0.0
         with:
           node-version: 20.x
 
+      # 4. 의존성 설치
+      # package-lock.json 파일을 기반으로 종속성을 빠르게 설치
       - name: Install dependencies
         run: npm ci
 
+      # 5. 유닛 테스트 실행
+      # Jest를 사용하여 유닛 테스트를 실행하고 결과를 생성함
       - name: Run Unit Test
         run: npm run test:report
 
+      # 6. 테스트 리포트 업로드
+      # JUnit 형식의 테스트 결과를 GitHub의 주석으로 보고
       - name: Upload Test Report
         id: test-report
         uses: dorny/test-reporter@v1.7.0
+        # 테스트가 성공하거나 실패해도 리포트를 생성
         if: success() || failure()
         with:
           name: test-results
           path: junit.xml
           fail-on-error: 'false'
           reporter: jest-junit
+          # GitHub에서 주석을 달기 위한 토큰 설정
           token: ${{ secrets.GITHUB_TOKEN }}
